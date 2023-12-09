@@ -1,3 +1,3 @@
-module MODULE_NAME
+module github.com/AnhTuan4198/Pokedex
 
 go 1.21.4
