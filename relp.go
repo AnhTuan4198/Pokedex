@@ -4,22 +4,24 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/AnhTuan4198/Pokedex/pokeapi"
 	"github.com/AnhTuan4198/Pokedex/pokecache"
 )
 
 type config struct {
-	pokeApiClient pokeapi.Client
-	cache *pokecache.Cache
+	pokeApiClient   pokeapi.Client
+	cache           *pokecache.Cache
 	nextLocationUrl *string
 	prevLocationUrl *string
+	exploreLocation *string
 }
 
 type CLICommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
 }
 
 func (cmd CLICommand) getInformation() {
@@ -33,17 +35,25 @@ func startRELP(cfg *config) {
 	for {
 		fmt.Printf("Pokedex > ")
 		scanner.Scan()
-		cmdInput := scanner.Text()
-		if cmdInput == "" {
+		terminalInput := scanner.Text()
+		if terminalInput == "" {
 			continue
 		}
+		commandSlices := strings.Fields(terminalInput)
+		if commandSlices[0] == "" {
+			continue
+		}
+		arg := ""
+		if len(commandSlices) > 1 {
+			arg = commandSlices[1]
+		}
 		cmds := getCommands()
-		cmd, ok := cmds[cmdInput]
+		cmd, ok := cmds[commandSlices[0]]
 		if !ok {
 			fmt.Printf("Command not found!\n")
 			continue
 		} else {
-			shouldExit := cmd.callback(cfg)
+			shouldExit := cmd.callback(cfg, arg)
 			if shouldExit != nil {
 				return
 			}
@@ -77,6 +87,12 @@ func getCommands() map[string]CLICommand {
 		name:        "mapb",
 		description: "Show previous location areas",
 		callback:    commandMapb,
+	}
+
+	cmds["explore"] = CLICommand{
+		name:        "explore",
+		description: "Explore all pokemon in given area",
+		callback:    commandExplore,
 	}
 
 	return cmds

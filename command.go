@@ -9,7 +9,7 @@ import (
 	"github.com/AnhTuan4198/Pokedex/pokecache"
 )
 
-func commandHelp(cfg *config) error {
+func commandHelp(cfg *config, args ...string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage: ")
 	fmt.Println("")
@@ -19,11 +19,11 @@ func commandHelp(cfg *config) error {
 	return nil
 }
 
-func commandExit(cfg *config) error {
+func commandExit(cfg *config, args ...string) error {
 	return errors.New("error")
 }
 
-func commandMap(cfg *config) error {
+func commandMap(cfg *config, args ...string) error {
 	var res = pokeapi.LocationAreaResponse{}
 	hasCacheData := false;
 	cacheData := pokecache.CacheEntry{};
@@ -51,15 +51,13 @@ func commandMap(cfg *config) error {
 	cfg.nextLocationUrl = res.Next
 	cfg.prevLocationUrl = res.Previous
 
-	fmt.Println("Next", *res.Next, res.Previous);
-
 	for _, item := range res.Results {
 		fmt.Println(item.Name)
 	}
 	return nil
 }
 
-func commandMapb(cfg *config) error {
+func commandMapb(cfg *config,  args ...string) error {
 	if cfg.prevLocationUrl == nil {
 		fmt.Println("Unable to go back!")
 		return nil
@@ -89,5 +87,28 @@ func commandMapb(cfg *config) error {
 	for _, item := range res.Results {
 		fmt.Println(item.Name)
 	}
+	return nil
+}
+
+
+func commandExplore(cfg *config, args ...string) error {
+	// var res = pokeapi.PokemonEncounter{}
+	locationName := args[0]
+	if len(locationName) == 0{
+		return errors.New("Invalid location")
+	}
+	// var res = pokeapi.PokemonEncounter{};
+
+	pokemonEncounter, error := cfg.pokeApiClient.ExplorePokemonInArea(locationName, cfg.cache);
+
+	if error != nil{
+		return errors.New("Something when wrong")
+	}
+
+	for _, pokemon := range pokemonEncounter.PokemonEncounter{
+		fmt.Println(pokemon.Pokemon.Name);
+	}
+
+	fmt.Println(args);
 	return nil
 }
