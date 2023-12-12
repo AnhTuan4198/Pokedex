@@ -97,16 +97,19 @@ func commandExplore(cfg *config, args ...string) error {
 	if len(locationName) == 0{
 		return errors.New("Invalid location")
 	}
+	fmt.Println("Exploring pastoria-city-area...")
 	// var res = pokeapi.PokemonEncounter{};
 
 	pokemonEncounter, error := cfg.pokeApiClient.ExplorePokemonInArea(locationName, cfg.cache);
 
 	if error != nil{
+		fmt.Println("Not found!")
 		return errors.New("Something when wrong")
 	}
 
+	fmt.Println("Found Pokemon:")
 	for _, pokemon := range pokemonEncounter.PokemonEncounter{
-		fmt.Println(pokemon.Pokemon.Name);
+		fmt.Println("-",pokemon.Pokemon.Name);
 	}
 
 	fmt.Println(args);
